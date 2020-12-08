@@ -8,6 +8,7 @@ import random
 import shutil
 import time
 import warnings
+import json
 
 import torch
 import torch.nn as nn
@@ -218,8 +219,10 @@ def main_worker(gpu, ngpus_per_node, args):
 
     # Data loading code
     traindir = os.path.join(args.data, 'train')
-    normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                     std=[0.229, 0.224, 0.225])
+    with open(f"{traindir}/norm.json", "r+") as f:
+        norm = json.load(f)
+    normalize = transforms.Normalize(mean=norm["mean"],
+                                     std=norm["std"])
     if args.aug_plus:
         # MoCo v2's aug: similar to SimCLR https://arxiv.org/abs/2002.05709
         augmentation = [
